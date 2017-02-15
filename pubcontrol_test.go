@@ -14,6 +14,15 @@ import (
 	"strings"
 )
 
+type alwaysFalseSubscriptionWatcher struct{}
+
+func (w *alwaysFalseSubscriptionWatcher) Start()                                 {}
+func (w *alwaysFalseSubscriptionWatcher) Stop()                                  {}
+func (w *alwaysFalseSubscriptionWatcher) IsHealthy() bool                        { return true }
+func (w *alwaysFalseSubscriptionWatcher) IsChannelConnected(channel string) bool { return false }
+
+var alwaysFalseWatcher SubscriptionWatcher = &alwaysFalseSubscriptionWatcher{}
+
 func TestPcInitialize(t *testing.T) {
 	pc := NewPubControl(nil)
 	assert.Equal(t, len(pc.clients), 0)
@@ -100,6 +109,24 @@ func TestPcPublish(t *testing.T) {
 	assert.Equal(t, publishResults1[1], item)
 	assert.Equal(t, publishResults2[0], "chan")
 	assert.Equal(t, publishResults2[1], item)
+}
+
+func TestPcPublishSkippingNonSubscribers(t *testing.T) {
+	publishResults1 = nil
+	publishResults2 = nil
+	formats := make([]Formatter, 0)
+	formats = append(formats, fmt1a)
+	item := NewItem(formats, "id", "prev-id")
+	pc := NewPubControl(nil)
+	pcc := NewPubControlClient("uri")
+	pcc.publish = publish1
+	pc.AddClient(pcc)
+	pcc = NewPubControlClientWithSubscriptionWatcher("uri", alwaysFalseWatcher)
+	pc.AddClient(pcc)
+	err := pc.MaybePublish("chan", item, true)
+	assert.NoError(t, err)
+	assert.Equal(t, publishResults1[0], "chan")
+	assert.Equal(t, publishResults1[1], item)
 }
 
 func publishError(pcc *PubControlClient, channel string, item *Item) error {
