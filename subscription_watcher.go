@@ -1,7 +1,7 @@
 package pubcontrol
 
 var (
-	defaultSubscriptionWatcher SubscriptionWatcher = &alwaysTrueSubscriptionWatcher{}
+	defaultSubscriptionWatcher SubscriptionWatcher = &AlwaysTrueSubscriptionWatcher{}
 )
 
 // Tracks subscribed channels. For Fanout, this would utilize: https://fanout.io/docs/devguide.html#subscription-feeds
@@ -16,9 +16,9 @@ type SubscriptionWatcher interface {
 	IsChannelConnected(channel string) bool
 }
 
-type alwaysTrueSubscriptionWatcher struct{}
+type AlwaysTrueSubscriptionWatcher struct{}
 
-func (w *alwaysTrueSubscriptionWatcher) Start()                                 {}
-func (w *alwaysTrueSubscriptionWatcher) Stop()                                  {}
-func (w *alwaysTrueSubscriptionWatcher) IsHealthy() bool                        { return true }
-func (w *alwaysTrueSubscriptionWatcher) IsChannelConnected(channel string) bool { return true }
+func (w *AlwaysTrueSubscriptionWatcher) Start()                                 {}
+func (w *AlwaysTrueSubscriptionWatcher) Stop()                                  {}
+func (w *AlwaysTrueSubscriptionWatcher) IsHealthy() bool                        { return true }
+func (w *AlwaysTrueSubscriptionWatcher) IsChannelConnected(channel string) bool { return true }
